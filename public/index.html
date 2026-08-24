@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1nstaBid — Own Your Spot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="ticker-wrap">
+        <div class="ticker-track" id="ticker-track"></div>
+    </div>
+
+    <header class="site-header">
+        <div class="header-brand">
+            <h1 class="logo">1nstaBid</h1>
+            <p class="tagline">Highest bidder ranks #1. <strong>Is that you?</strong></p>
+        </div>
+        <button class="bid-btn" id="open-bid-modal">+ Place Your Bid</button>
+    </header>
+
+    <main>
+        <div class="stats-bar">
+            <div class="stat">
+                <span id="total-bids">—</span>
+                <small>Total Bids</small>
+            </div>
+            <div class="stat">
+                <span id="top-bid">—</span>
+                <small>Top Bid</small>
+            </div>
+            <div class="stat">
+                <span id="total-raised">—</span>
+                <small>Total Raised</small>
+            </div>
+            <div class="stat stat-online">
+                <span id="online-count">—</span>
+                <small><span class="online-dot"></span> Online Now</small>
+            </div>
+            <div class="stat">
+                <span id="visitor-count">—</span>
+                <small>Total Visitors</small>
+            </div>
+        </div>
+
+        <div id="banner-area"></div>
+
+        <div class="activity-feed" id="activity-feed">
+            <div class="activity-header">
+                <span class="live-badge">LIVE</span>
+                Latest Activity
+            </div>
+            <div class="activity-list" id="activity-list"></div>
+        </div>
+
+        <div class="leaderboard" id="leaderboard">
+            <div class="loading">Loading rankings…</div>
+        </div>
+    </main>
+
+    <!-- Bid Modal -->
+    <div class="modal-overlay hidden" id="modal">
+        <div class="modal">
+            <button class="modal-close" id="close-modal" aria-label="Close">&times;</button>
+            <h2>Claim Your Spot</h2>
+            <p class="modal-sub">Enter your Instagram username and bid amount.<br>Highest bidder is always #1.</p>
+
+            <div class="form-group">
+                <label for="username-input">Instagram Username</label>
+                <div class="input-wrap">
+                    <span class="prefix">@</span>
+                    <input type="text" id="username-input" placeholder="your_username"
+                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="30">
+                </div>
+                <div class="field-msg hidden" id="username-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="bid-input">Bid Amount (EUR)</label>
+                <div class="input-wrap">
+                    <span class="prefix">€</span>
+                    <input type="number" id="bid-input" placeholder="5.00" min="1.00" step="0.01">
+                </div>
+                <div class="field-hint" id="min-bid-hint">Minimum bid: $1.00</div>
+            </div>
+
+            <div class="ig-preview hidden" id="preview">
+                <img id="preview-img" src="" alt="profile">
+                <span id="preview-name"></span>
+                <span class="verified-check">✓ Found on Instagram</span>
+            </div>
+
+            <button class="pay-btn" id="pay-btn">Pay with Card / Apple Pay / Google Pay</button>
+
+            <p class="secure-note">🔒 Payments secured by Stripe. We never store card details.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "social-pixel-homepage",
+  "version": "1.0.0",
+  "description": "The Million Instagram Homepage - Buy pixel blocks to showcase your Instagram profile",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20 <24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0",
+    "stripe": "^14.21.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@9.6.0": true
+  }
+}
