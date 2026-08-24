@@ -24,6 +24,7 @@ This is an Express app, so deploy it as a Node web service. Set the service star
 - `STRIPE_SECRET_KEY`: your live Stripe secret key
 - `STRIPE_WEBHOOK_SECRET`: the signing secret for the live webhook endpoint
 - `PRICE_PER_PIXEL_CENTS`: `1`
+- `DB_PATH`: `/data/bids.db`
 
 The app exposes `GET /api/health` for service health checks. SQLite writes to `bids.db`, so production hosting must use a persistent volume or the database will be reset on redeploy.
 
