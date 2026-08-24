@@ -9,19 +9,26 @@ async function validateInstagramUser(username) {
     }
 
     try {
-        const res = await fetch(`https://unavatar.io/instagram/${cleanUsername}?fallback=false`, {
-            method: 'HEAD',
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+        const res = await fetch(`https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(cleanUsername)}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'x-ig-app-id': '936619743392459'
+            }
         });
 
-        if (res.status === 404) {
+        if (!res.ok) {
             return { valid: false, message: `No Instagram account found for @${cleanUsername}. Please check the username and try again.` };
         }
 
-        return { valid: true, username: cleanUsername };
+        const data = await res.json();
+        if (!data?.data?.user?.username) {
+            return { valid: false, message: `No Instagram account found for @${cleanUsername}. Please check the username and try again.` };
+        }
+
+        return { valid: true, username: data.data.user.username };
     } catch (err) {
         console.error('Instagram validation error:', err);
-        return { valid: true, username: cleanUsername };
+        return { valid: false, message: 'Instagram could not be verified right now. Please try again.' };
     }
 }
 
