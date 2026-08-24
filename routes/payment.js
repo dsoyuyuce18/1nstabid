@@ -19,7 +19,7 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 
     const cleanUser = instaCheck.username;
-    const imageUrl = `https://unavatar.io/instagram/${cleanUser}`;
+    const imageUrl = instaCheck.profileImageUrl || `https://unavatar.io/instagram/${cleanUser}`;
     const profileUrl = `https://instagram.com/${cleanUser}`;
     const amountCents = parseInt(bid_amount);
 

@@ -25,7 +25,11 @@ async function validateInstagramUser(username) {
             return { valid: false, message: `No Instagram account found for @${cleanUsername}. Please check the username and try again.` };
         }
 
-        return { valid: true, username: data.data.user.username };
+        return {
+            valid: true,
+            username: data.data.user.username,
+            profileImageUrl: data.data.user.profile_pic_url_hd || data.data.user.profile_pic_url
+        };
     } catch (err) {
         console.error('Instagram validation error:', err);
         return { valid: false, message: 'Instagram could not be verified right now. Please try again.' };
