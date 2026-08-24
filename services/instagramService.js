@@ -32,9 +32,10 @@ async function validateInstagramUser(username) {
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
         });
         const profileHtml = await profileRes.text();
-        const profileExists = profileRes.ok && (
-            profileHtml.includes(`profilePage_`) &&
-            new RegExp(`"username":"${cleanUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).test(profileHtml)
+        const escapedUsername = cleanUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const profileExists = profileRes.ok && profileHtml.includes(`profilePage_`) && (
+            profileHtml.includes(`"username":"${cleanUsername}"`) ||
+            new RegExp(`@${escapedUsername}[^a-zA-Z0-9_]`).test(profileHtml)
         );
 
         if (!profileExists) {
