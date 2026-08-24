@@ -27,6 +27,16 @@ db.exec(`
 `);
 db.prepare(`INSERT OR IGNORE INTO stats (key, value) VALUES ('visitors', 0)`).run();
 
+const demoDataCleanup = db.prepare(`SELECT value FROM stats WHERE key = 'demo_data_removed'`).get();
+if (!demoDataCleanup) {
+  db.prepare(`DELETE FROM bids WHERE (username, bid_amount) IN (
+    ('instagram', 95000), ('nike', 82000), ('nasa', 61000), ('natgeo', 45000),
+    ('redbull', 32000), ('gopro', 21000), ('bmw', 15000),
+    ('mercedes_benz', 9000), ('levis', 5500), ('spotify', 2200)
+  )`).run();
+  db.prepare(`INSERT INTO stats (key, value) VALUES ('demo_data_removed', 1)`).run();
+}
+
 function cleanupPending() {
     db.prepare(`DELETE FROM bids WHERE status = 'pending' AND created_at < datetime('now', '-30 minutes')`).run();
 }
