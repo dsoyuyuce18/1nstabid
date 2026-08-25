@@ -18,9 +18,36 @@ router.get('/', async (req, res) => {
         }
 
         const bids = db.prepare(`
-            SELECT username, image_url, profile_url, bid_amount, created_at
-            FROM bids WHERE status = 'paid'
-            ORDER BY bid_amount DESC
+            WITH ranked_bids AS (
+                SELECT
+                    id,
+                    username,
+                    image_url,
+                    profile_url,
+                    created_at,
+                    SUM(bid_amount) OVER (
+                        PARTITION BY LOWER(username)
+                    ) AS total_bid_amount,
+                    COUNT(*) OVER (
+                        PARTITION BY LOWER(username)
+                    ) AS payment_count,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY LOWER(username)
+                        ORDER BY created_at DESC, id DESC
+                    ) AS user_bid_rank
+                FROM bids
+                WHERE status = 'paid'
+            )
+            SELECT
+                username,
+                image_url,
+                profile_url,
+                total_bid_amount AS bid_amount,
+                payment_count,
+                created_at
+            FROM ranked_bids
+            WHERE user_bid_rank = 1
+            ORDER BY bid_amount DESC, created_at DESC, id DESC
         `).all();
 
         const fallbackBids = bids.filter((bid) => bid.image_url.includes('unavatar.io'));

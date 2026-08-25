@@ -194,7 +194,8 @@ function renderLeaderboard(bids) {
 }
 
 function updateStats(bids) {
-    document.getElementById('total-bids').textContent   = bids.length;
+    const bidCount = bids.reduce((sum, bid) => sum + (bid.payment_count || 1), 0);
+    document.getElementById('total-bids').textContent   = bidCount;
     document.getElementById('top-bid').textContent      = bids.length ? `€${(bids[0].bid_amount / 100).toFixed(2)}` : '€0';
     const total = bids.reduce((s, b) => s + b.bid_amount, 0);
     document.getElementById('total-raised').textContent = `€${(total / 100).toFixed(2)}`;
