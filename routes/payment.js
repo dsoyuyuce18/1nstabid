@@ -55,13 +55,26 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 });
 
-router.get('/status/:sessionId', (req, res) => {
+router.get('/status/:sessionId', async (req, res) => {
     const bid = db.prepare(`
         SELECT username, bid_amount, status, created_at
         FROM bids WHERE stripe_session_id = ?
     `).get(req.params.sessionId);
 
     if (!bid) return res.status(404).json({ error: 'Payment not found.' });
+
+    if (bid.status !== 'paid') {
+        try {
+            const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
+            if (session.payment_status === 'paid') {
+                db.prepare(`UPDATE bids SET status = 'paid' WHERE stripe_session_id = ?`).run(req.params.sessionId);
+                bid.status = 'paid';
+            }
+        } catch (err) {
+            console.error('Payment status lookup error:', err);
+        }
+    }
+
     res.json(bid);
 });
 
