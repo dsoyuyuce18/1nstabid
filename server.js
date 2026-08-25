@@ -25,6 +25,10 @@ app.get('/api/health', (req, res) => {
     res.json({ ok: true });
 });
 
+app.get('/contact', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'contact.html'));
+});
+
 // Heartbeat — called every 30s from browser
 app.post('/api/heartbeat', (req, res) => {
     const { sid } = req.body;

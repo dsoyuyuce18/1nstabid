@@ -7,10 +7,10 @@ const { validateInstagramUser } = require('../services/instagramService');
 
 router.post('/create-checkout-session', async (req, res) => {
     cleanupPending();
-    const { username, bid_amount } = req.body;
+    const { username, bid_amount, email } = req.body;
 
-    if (!username || !bid_amount || bid_amount < 100) {
-        return res.status(400).json({ error: 'Invalid parameters. Minimum bid is $1.00.' });
+    if (!username || !bid_amount || bid_amount < 100 || !email || !/^\S+@\S+\.\S+$/.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email and a bid of at least €1.00.' });
     }
 
     const instaCheck = await validateInstagramUser(username);
@@ -37,20 +37,32 @@ router.post('/create-checkout-session', async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${process.env.BASE_URL}/?success=true`,
+            customer_email: email.trim(),
+            payment_intent_data: { receipt_email: email.trim() },
+            success_url: `${process.env.BASE_URL}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.BASE_URL}/?canceled=true`,
             metadata: { username: cleanUser, bid_amount: amountCents }
         });
 
         db.prepare(`
-            INSERT INTO bids (username, image_url, profile_url, bid_amount, stripe_session_id, status)
-            VALUES (?, ?, ?, ?, ?, 'pending')
-        `).run(cleanUser, imageUrl, profileUrl, amountCents, session.id);
+            INSERT INTO bids (username, image_url, profile_url, bid_amount, stripe_session_id, status, email)
+            VALUES (?, ?, ?, ?, ?, 'pending', ?)
+        `).run(cleanUser, imageUrl, profileUrl, amountCents, session.id, email.trim());
 
         res.json({ url: session.url });
     } catch (err) {
         res.status(500).json({ error: 'Could not create payment session: ' + err.message });
     }
+});
+
+router.get('/status/:sessionId', (req, res) => {
+    const bid = db.prepare(`
+        SELECT username, bid_amount, status, created_at
+        FROM bids WHERE stripe_session_id = ?
+    `).get(req.params.sessionId);
+
+    if (!bid) return res.status(404).json({ error: 'Payment not found.' });
+    res.json(bid);
 });
 
 router.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {

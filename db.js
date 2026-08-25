@@ -19,6 +19,11 @@ db.exec(`
   )
 `);
 
+const bidColumns = db.prepare(`PRAGMA table_info(bids)`).all();
+if (!bidColumns.some((column) => column.name === 'email')) {
+    db.exec(`ALTER TABLE bids ADD COLUMN email TEXT`);
+}
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS stats (
     key TEXT PRIMARY KEY,

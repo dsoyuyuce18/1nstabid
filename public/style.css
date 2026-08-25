@@ -110,6 +110,28 @@ body {
 .tagline { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .tagline strong { color: var(--text); }
 
+.site-footer {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    padding: 36px 16px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.site-footer a { color: inherit; text-decoration: none; }
+.site-footer a:hover { color: var(--text); }
+
+.info-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 72px 24px;
+}
+
+.info-page h1 { margin-bottom: 12px; }
+.info-page p { color: var(--muted); line-height: 1.7; }
+.info-page a { color: var(--accent); }
+
 .bid-btn {
     flex-shrink: 0;
     background: linear-gradient(135deg, #e1306c, #833ab4);

@@ -4,6 +4,7 @@ const openModalBtn  = document.getElementById('open-bid-modal');
 const closeModalBtn = document.getElementById('close-modal');
 const usernameInput = document.getElementById('username-input');
 const bidInput      = document.getElementById('bid-input');
+const emailInput    = document.getElementById('email-input');
 const usernameError = document.getElementById('username-error');
 const payBtn        = document.getElementById('pay-btn');
 const preview       = document.getElementById('preview');
@@ -54,6 +55,7 @@ function closeModal() {
     modal.classList.add('hidden');
     usernameInput.value = '';
     bidInput.value = '';
+    emailInput.value = '';
     hideError();
     preview.classList.add('hidden');
 }
@@ -82,8 +84,10 @@ usernameInput.addEventListener('input', () => {
 payBtn.addEventListener('click', async () => {
     const username   = usernameInput.value.replace('@', '').trim();
     const amountRaw  = parseFloat(bidInput.value);
+    const email      = emailInput.value.trim();
 
     if (!username) { showError('Please enter your Instagram username.'); return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)) { showError('Please enter a valid email for your receipt.'); return; }
     if (!INSTAGRAM_RE.test(username)) { showError('Invalid Instagram username format.'); return; }
     hideError();
 
@@ -101,7 +105,7 @@ payBtn.addEventListener('click', async () => {
         const res  = await fetch('/api/payment/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, bid_amount: amountCents })
+            body: JSON.stringify({ username, bid_amount: amountCents, email })
         });
         const data = await res.json();
 
@@ -281,7 +285,7 @@ function escapeHtml(str) {
 // ── URL banners (success / cancel) ────────────────────
 const params = new URLSearchParams(window.location.search);
 if (params.get('success') === 'true') {
-    showBanner('🎉 Payment confirmed! Your spot will appear in the rankings shortly.', 'success');
+    showPaymentStatus(params.get('session_id'));
     window.history.replaceState({}, '', '/');
 } else if (params.get('canceled') === 'true') {
     showBanner('Payment was canceled — no charge was made. Try again anytime!', 'info');
@@ -294,6 +298,31 @@ function showBanner(msg, type) {
     el.textContent = msg;
     bannerArea.appendChild(el);
     setTimeout(() => el.remove(), 8000);
+}
+
+async function showPaymentStatus(sessionId) {
+    if (!sessionId) {
+        showBanner('Payment completed. Your bid is being verified.', 'success');
+        return;
+    }
+    const statusEl = document.getElementById('payment-status');
+    statusEl.classList.remove('hidden');
+    statusEl.textContent = 'Payment received. Confirming your bid...';
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+        try {
+            const res = await fetch(`/api/payment/status/${encodeURIComponent(sessionId)}`);
+            if (res.ok) {
+                const bid = await res.json();
+                if (bid.status === 'paid') {
+                    statusEl.textContent = `Payment confirmed for @${bid.username}. Your spot is now live.`;
+                    loadLeaderboard();
+                    return;
+                }
+            }
+        } catch { /* retry while Stripe delivers the webhook */ }
+        await new Promise(resolve => setTimeout(resolve, 2500));
+    }
+    statusEl.textContent = 'Payment received. Your bid is awaiting final confirmation.';
 }
 
 // ── Init ───────────────────────────────────────────────
