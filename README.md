@@ -24,8 +24,10 @@ This is an Express app, so deploy it as a Node web service. Set the service star
 - `STRIPE_SECRET_KEY`: your live Stripe secret key
 - `STRIPE_WEBHOOK_SECRET`: the signing secret for the live webhook endpoint
 - `PRICE_PER_PIXEL_CENTS`: `1`
-- `DB_PATH`: `/data/bids.db`
+- `DB_PATH`: `/data/bids.db` (this must be on an attached persistent volume)
 
 The app exposes `GET /api/health` for service health checks. SQLite writes to `bids.db`, so production hosting must use a persistent volume or the database will be reset on redeploy.
 
-For Stripe, create a live webhook for `https://1nstabid.com/api/payment/webhook` and enable the `checkout.session.completed` event.
+As a safeguard, the app also rebuilds paid bids from Stripe Checkout Sessions from the last 90 days whenever it starts. This is a recovery mechanism, not a replacement for persistent storage.
+
+For Stripe, create a live webhook for `https://1nstabid.com/api/payment/webhook` and enable `checkout.session.completed`. If you enable payment methods that confirm asynchronously, also enable `checkout.session.async_payment_succeeded`.

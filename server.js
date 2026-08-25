@@ -49,9 +49,16 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.use('/api/bids', require('./routes/pixels'));
-app.use('/api/payment', require('./routes/payment'));
+const paymentRouter = require('./routes/payment');
+app.use('/api/payment', paymentRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running: http://localhost:${PORT}`);
+
+    paymentRouter.restoreRecentPaidBids()
+        .then((restored) => {
+            if (restored) console.log(`Restored ${restored} paid bid${restored === 1 ? '' : 's'} from Stripe.`);
+        })
+        .catch((err) => console.error('Could not restore recent paid bids from Stripe:', err.message));
 });

@@ -2,9 +2,14 @@ const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
 
-const databasePath = process.env.DB_PATH || path.join(__dirname, 'bids.db');
+const configuredDatabasePath = process.env.DB_PATH && process.env.DB_PATH.trim();
+const databasePath = configuredDatabasePath || path.join(__dirname, 'bids.db');
 fs.mkdirSync(path.dirname(databasePath), { recursive: true });
 const db = new Database(databasePath);
+
+if (process.env.NODE_ENV === 'production' && !configuredDatabasePath) {
+  console.warn('DB_PATH is not set. SQLite data will be lost if this service restarts or redeploys. Mount persistent storage and set DB_PATH (for example, /data/bids.db).');
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS bids (
@@ -22,6 +27,9 @@ db.exec(`
 const bidColumns = db.prepare(`PRAGMA table_info(bids)`).all();
 if (!bidColumns.some((column) => column.name === 'email')) {
     db.exec(`ALTER TABLE bids ADD COLUMN email TEXT`);
+}
+if (!bidColumns.some((column) => column.name === 'paid_at')) {
+    db.exec(`ALTER TABLE bids ADD COLUMN paid_at DATETIME`);
 }
 
 db.exec(`
@@ -43,7 +51,14 @@ if (!demoDataCleanup) {
 }
 
 function cleanupPending() {
-    db.prepare(`DELETE FROM bids WHERE status = 'pending' AND created_at < datetime('now', '-30 minutes')`).run();
+    // Do not delete payment records. A webhook can arrive late, or the database can
+    // be restored while Stripe still has the completed Checkout Session. Keeping the
+    // record means it can always be reconciled back to "paid".
+    db.prepare(`
+        UPDATE bids
+        SET status = 'expired'
+        WHERE status = 'pending' AND created_at < datetime('now', '-7 days')
+    `).run();
 }
 
 module.exports = { db, cleanupPending };
