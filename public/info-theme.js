@@ -1,6 +1,7 @@
 (() => {
   const body = document.body;
-  if (!body.classList.contains('dark') && localStorage.getItem('theme') !== 'light') body.classList.add('dark');
+  if (localStorage.getItem('theme') === 'light') body.classList.remove('dark');
+  else body.classList.add('dark');
   const header = document.querySelector('.site-header');
   if (header && !document.querySelector('.ticker-wrap')) {
     const ticker = document.createElement('div'); ticker.className = 'ticker-wrap';
