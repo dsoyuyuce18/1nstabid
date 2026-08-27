@@ -156,14 +156,6 @@ router.post('/create-checkout-session', async (req, res) => {
         return res.status(400).json({ error: 'Please enter a valid email and a bid of at least €1.00.' });
     }
 
-    const currentLeader = db.prepare(`SELECT MAX(total) AS amount FROM (
-        SELECT SUM(bid_amount) AS total FROM bids WHERE status = 'paid' GROUP BY LOWER(username)
-    )`).get()?.amount || 0;
-    const requiredBid = currentLeader + (currentLeader >= 10000 ? 500 : 100);
-    if (Number(bid_amount) < requiredBid) {
-        return res.status(400).json({ error: `Your bid must be at least €${(requiredBid / 100).toFixed(2)} to beat the current leader.` });
-    }
-
     const accountCheck = platform === 'tiktok' ? await validateTikTokUser(username) : await validateInstagramUser(username);
     if (!accountCheck.valid) {
         return res.status(400).json({ error: accountCheck.message });

@@ -205,7 +205,7 @@ async function updateMinBidHint() {
             const increment = top >= 100 ? 5 : 1;
             const next = top + increment;
             minBidHint.textContent = `Suggested next bid: €${next.toFixed(2)}`;
-            bidInput.min = next.toFixed(2);
+            bidInput.min = '1.00';
             if (nextBidAmount) nextBidAmount.textContent = `€${next.toFixed(2)}`;
         }
     } catch { /* keep default text */ }
