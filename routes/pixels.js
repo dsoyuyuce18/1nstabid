@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
                     profile_url,
                     platform,
                     created_at,
+                    paid_at,
                     clicks,
                     SUM(bid_amount) OVER (
                         PARTITION BY LOWER(username)
@@ -48,6 +49,7 @@ router.get('/', async (req, res) => {
                 total_bid_amount AS bid_amount,
                 payment_count,
                 created_at,
+                paid_at,
                 clicks
             FROM ranked_bids
             WHERE user_bid_rank = 1

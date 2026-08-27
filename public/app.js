@@ -297,11 +297,11 @@ function renderActivity(bids) {
     if (!activityList || !bids.length) return;
 
     const recent = [...bids]
-        .sort((a, b) => parseDbDate(b.created_at) - parseDbDate(a.created_at))
+        .sort((a, b) => parseDbDate(b.paid_at || b.created_at) - parseDbDate(a.paid_at || a.created_at))
         .slice(0, 6);
 
     const isFirstLoad = lastSeenTime === null;
-    lastSeenTime = recent[0]?.created_at ?? lastSeenTime;
+    lastSeenTime = recent[0] ? (recent[0].paid_at || recent[0].created_at) : lastSeenTime;
 
     if (isFirstLoad) {
         activityList.innerHTML = recent.map(b => activityItemHTML(b)).join('');
@@ -309,8 +309,8 @@ function renderActivity(bids) {
     }
 
     // Prepend genuinely new items with slide-in animation
-    const newBids = recent.filter(b => parseDbDate(b.created_at) > parseDbDate(lastSeenTime));
-    lastSeenTime = recent[0]?.created_at ?? lastSeenTime;
+    const newBids = recent.filter(b => parseDbDate(b.paid_at || b.created_at) > parseDbDate(lastSeenTime));
+    lastSeenTime = recent[0] ? (recent[0].paid_at || recent[0].created_at) : lastSeenTime;
     for (const b of newBids.reverse()) {
         const el = document.createElement('div');
         el.innerHTML = activityItemHTML(b);
@@ -328,7 +328,7 @@ function activityItemHTML(b) {
         <span class="act-user">@${safe}</span>
         <span style="color:var(--muted);font-size:12px">placed a bid</span>
         <span class="act-amount">\u20ac${amount}</span>
-        <span class="act-time">${timeAgo(b.created_at)}</span>
+        <span class="act-time">${timeAgo(b.paid_at || b.created_at)}</span>
     </div>`;
 }
 
@@ -338,7 +338,7 @@ function renderTicker(bids) {
     if (!bids.length || !track) return;
 
     // Sort by most recent for the ticker
-    const recent = [...bids].sort((a, b) => parseDbDate(b.created_at) - parseDbDate(a.created_at));
+    const recent = [...bids].sort((a, b) => parseDbDate(b.paid_at || b.created_at) - parseDbDate(a.paid_at || a.created_at));
 
     const makeItems = () => recent.map(b => {
         const safe   = escapeHtml(b.username);
