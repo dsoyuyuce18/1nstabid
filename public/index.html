@@ -89,7 +89,7 @@
 
             <div class="form-group">
                 <label for="platform-input">Platform</label>
-                <div class="input-wrap"><select id="platform-input"><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select></div>
+                <div class="platform-picker" role="group" aria-label="Choose platform"><button type="button" class="platform-choice active" data-platform="instagram">Instagram</button><button type="button" class="platform-choice" data-platform="tiktok">TikTok</button><select id="platform-input" aria-label="Platform"><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select></div>
             </div>
 
             <div class="form-group">
@@ -112,7 +112,7 @@
 
             <div class="form-group">
                 <label for="image-input">Profile image <span>(optional)</span></label>
-                <div class="input-wrap"><input type="file" id="image-input" accept="image/jpeg,image/png,image/webp,image/gif"></div>
+                <label class="image-picker" for="image-input"><span class="image-picker-icon">＋</span><span><strong>Choose an image</strong><small>JPG, PNG, WebP or GIF · max 2 MB</small></span><input type="file" id="image-input" accept="image/jpeg,image/png,image/webp,image/gif"></label>
             </div>
 
             <div class="form-group">

@@ -577,6 +577,17 @@ body {
 .platform-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 5px; }
 .input-wrap select { flex:1; background:transparent; border:0; outline:0; color:var(--text); padding:12px 14px; font-size:15px; }
 .form-group label span { text-transform:none; letter-spacing:0; font-weight:500; }
+.platform-picker { display:flex; gap:6px; padding:4px; border:1.5px solid var(--border); border-radius:12px; background:var(--surface); }
+.platform-choice { flex:1; border:0; border-radius:9px; padding:10px; background:transparent; color:var(--muted); font-weight:700; cursor:pointer; transition:.15s; }
+.platform-choice.active { color:#fff; background:linear-gradient(135deg,#e1306c,#833ab4); }
+.platform-picker select { position:absolute; opacity:0; pointer-events:none; width:1px; height:1px; }
+.image-picker { display:flex !important; align-items:center; gap:12px; border:1.5px dashed var(--border); border-radius:12px; padding:12px 14px; color:var(--text) !important; cursor:pointer; transition:.15s; text-transform:none !important; letter-spacing:normal !important; }
+.image-picker:hover { border-color:var(--accent); background:rgba(225,48,108,.05); }
+.image-picker input { position:absolute; width:1px; height:1px; opacity:0; }
+.image-picker strong,.image-picker small { display:block; }
+.image-picker strong { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px; }
+.image-picker small { color:var(--muted); font-size:11px; margin-top:3px; }
+.image-picker-icon { width:32px; height:32px; display:grid; place-items:center; border-radius:9px; background:rgba(225,48,108,.12); color:var(--accent); font-size:22px; }
 body.light {}
 body.dark { --bg:#0a0a12; --surface:#13131e; --surface2:#1a1a28; --border:#252538; --text:#eeeef5; --muted:#9292aa; }
 body:not(.dark) { --bg:#fffaf7; --surface:#ffffff; --surface2:#f5efeb; --border:#e4d9d2; --text:#262229; --muted:#746c68; }

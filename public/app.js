@@ -7,6 +7,7 @@ const bidInput      = document.getElementById('bid-input');
 const emailInput    = document.getElementById('email-input');
 const platformInput = document.getElementById('platform-input');
 const imageInput    = document.getElementById('image-input');
+const platformChoices = document.querySelectorAll('.platform-choice');
 const usernameError = document.getElementById('username-error');
 const payBtn        = document.getElementById('pay-btn');
 const preview       = document.getElementById('preview');
@@ -38,6 +39,14 @@ themeToggle.addEventListener('click', () => {
     syncThemeIcon();
 });
 heroBid?.addEventListener('click', openModal);
+platformChoices.forEach((choice) => choice.addEventListener('click', () => {
+    platformInput.value = choice.dataset.platform;
+    platformChoices.forEach((item) => item.classList.toggle('active', item === choice));
+}));
+imageInput.addEventListener('change', () => {
+    const label = imageInput.closest('.image-picker');
+    if (label && imageInput.files[0]) label.querySelector('strong').textContent = imageInput.files[0].name;
+});
 
 // ── Session ID (for online tracking) ──────────────────
 let sessionId = localStorage.getItem('_sid');
@@ -80,6 +89,8 @@ function closeModal() {
     bidInput.value = '';
     emailInput.value = '';
     imageInput.value = '';
+    const imageLabel = imageInput.closest('.image-picker');
+    if (imageLabel) imageLabel.querySelector('strong').textContent = 'Choose an image';
     hideError();
     preview.classList.add('hidden');
 }
