@@ -288,6 +288,16 @@ function updateStats(bids) {
     document.getElementById('top-bid').textContent      = bids.length ? `€${(bids[0].bid_amount / 100).toFixed(2)}` : '€0';
     const total = bids.reduce((s, b) => s + b.bid_amount, 0);
     document.getElementById('total-raised').textContent = `€${(total / 100).toFixed(2)}`;
+    const launchTotal = document.getElementById('launch-total');
+    const launchHours = document.getElementById('launch-hours');
+    if (launchTotal) launchTotal.textContent = `€${(total / 100).toFixed(2)}`;
+    if (launchHours) {
+        const first = bids.reduce((oldest, bid) => {
+            const date = parseDbDate(bid.paid_at || bid.created_at);
+            return !oldest || date < oldest ? date : oldest;
+        }, null);
+        launchHours.textContent = first ? Math.max(0, Math.floor((Date.now() - first.getTime()) / 3600000)).toLocaleString() : '0';
+    }
 }
 
 // ── Activity Feed ──────────────────────────────────────
