@@ -270,6 +270,16 @@ function renderLeaderboard(bids) {
             <div class="bid-amount">€${amount}</div>
         </a>`;
     }).join('');
+    const restBoard = document.getElementById('leaderboard-rest');
+    if (restBoard) {
+        restBoard.innerHTML = '';
+        if (leaderboardPage === 0) {
+            const topItems = [...leaderboard.querySelectorAll('.bid-item')];
+            topItems.slice(5).forEach(item => restBoard.appendChild(item));
+        } else {
+            visibleBids.forEach((_, i) => { const item = leaderboard.querySelectorAll('.bid-item')[i]; if (item) restBoard.appendChild(item); });
+        }
+    }
     if (bids.length > BIDS_PER_PAGE || leaderboardPage > 0) {
         const toggle = document.createElement('button');
         toggle.className = 'show-more-bids';
@@ -278,9 +288,9 @@ function renderLeaderboard(bids) {
         toggle.textContent = nextPage ? `See more bids (${bids.length - start - BIDS_PER_PAGE}) ↓` : (leaderboardPage ? 'Previous page ↑' : '');
         if (!toggle.textContent) return;
         toggle.addEventListener('click', () => { leaderboardPage = nextPage ? leaderboardPage + 1 : leaderboardPage - 1; renderLeaderboard(bids); window.scrollTo({top: leaderboard.offsetTop - 20, behavior:'smooth'}); });
-        leaderboard.appendChild(toggle);
+        (restBoard || leaderboard).appendChild(toggle);
     }
-    leaderboard.querySelectorAll('.bid-item').forEach((item) => {
+    document.querySelectorAll('.leaderboard .bid-item').forEach((item) => {
         item.addEventListener('click', () => {
             const username = item.dataset.username;
             if (username) navigator.sendBeacon(`/api/bids/${encodeURIComponent(username)}/click`);
