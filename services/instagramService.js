@@ -49,4 +49,25 @@ async function validateInstagramUser(username) {
     }
 }
 
-module.exports = { validateInstagramUser };
+async function validateTikTokUser(username) {
+    const cleanUsername = username.replace('@', '').trim();
+    if (!/^[a-zA-Z0-9._]{1,24}$/.test(cleanUsername)) {
+        return { valid: false, message: 'Invalid TikTok username. Use letters, numbers, dots and underscores (max 24 chars).' };
+    }
+    try {
+        const res = await fetch(`https://www.tiktok.com/@${encodeURIComponent(cleanUsername)}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        const html = await res.text();
+        const exists = res.ok && !/page not available|couldn't find this account|user not found/i.test(html) &&
+            (html.includes(`uniqueId\\\":\\\"${cleanUsername}`) || html.includes(`@${cleanUsername}`));
+        return exists
+            ? { valid: true, username: cleanUsername }
+            : { valid: false, message: `No TikTok account found for @${cleanUsername}. Please check the username and try again.` };
+    } catch (err) {
+        console.error('TikTok validation error:', err);
+        return { valid: false, message: 'TikTok could not be verified right now. Please try again.' };
+    }
+}
+
+module.exports = { validateInstagramUser, validateTikTokUser };

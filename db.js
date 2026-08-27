@@ -34,6 +34,9 @@ if (!bidColumns.some((column) => column.name === 'paid_at')) {
 if (!bidColumns.some((column) => column.name === 'clicks')) {
     db.exec(`ALTER TABLE bids ADD COLUMN clicks INTEGER NOT NULL DEFAULT 0`);
 }
+if (!bidColumns.some((column) => column.name === 'platform')) {
+    db.exec(`ALTER TABLE bids ADD COLUMN platform TEXT NOT NULL DEFAULT 'instagram'`);
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS stats (

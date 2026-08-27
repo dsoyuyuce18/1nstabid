@@ -3,15 +3,16 @@ const router = express.Router();
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const { db, cleanupPending } = require('../db');
-const { validateInstagramUser } = require('../services/instagramService');
+const { validateInstagramUser, validateTikTokUser } = require('../services/instagramService');
 
 const INSTAGRAM_USERNAME_RE = /^[a-zA-Z0-9._]{1,30}$/;
 
 function bidDetailsFromSession(session) {
     const username = String(session.metadata?.username || '').replace('@', '').trim();
+    const platform = session.metadata?.platform === 'tiktok' ? 'tiktok' : 'instagram';
     const bidAmount = Number(session.metadata?.bid_amount || session.amount_total);
 
-    if (!INSTAGRAM_USERNAME_RE.test(username) || !Number.isInteger(bidAmount) || bidAmount < 100) {
+    if (!/^[a-zA-Z0-9._]{1,30}$/.test(username) || !Number.isInteger(bidAmount) || bidAmount < 100) {
         return null;
     }
 
@@ -19,8 +20,9 @@ function bidDetailsFromSession(session) {
         username,
         bidAmount,
         email: session.customer_details?.email || session.customer_email || null,
-        imageUrl: `https://unavatar.io/instagram/${username}`,
-        profileUrl: `https://instagram.com/${username}`
+        platform,
+        imageUrl: session.metadata?.image_url || `https://unavatar.io/${platform}/${username}`,
+        profileUrl: platform === 'tiktok' ? `https://tiktok.com/@${username}` : `https://instagram.com/${username}`
     };
 }
 
@@ -35,13 +37,14 @@ function recordPaidSession(session) {
 
     db.prepare(`
         INSERT INTO bids (
-            username, image_url, profile_url, bid_amount,
+            username, image_url, profile_url, bid_amount, platform,
             stripe_session_id, status, email, paid_at
         )
-        VALUES (?, ?, ?, ?, ?, 'paid', ?, CURRENT_TIMESTAMP)
+        VALUES (?, ?, ?, ?, ?, ?, 'paid', ?, CURRENT_TIMESTAMP)
         ON CONFLICT(stripe_session_id) DO UPDATE SET
             username = excluded.username,
             profile_url = excluded.profile_url,
+            platform = excluded.platform,
             bid_amount = excluded.bid_amount,
             status = 'paid',
             email = COALESCE(excluded.email, bids.email),
@@ -51,6 +54,7 @@ function recordPaidSession(session) {
         bid.imageUrl,
         bid.profileUrl,
         bid.bidAmount,
+        bid.platform,
         session.id,
         bid.email
     );
@@ -126,7 +130,8 @@ function syncRecentlyPaidBids() {
 
 router.post('/create-checkout-session', async (req, res) => {
     cleanupPending();
-    const { username, bid_amount, email } = req.body;
+    const { username, bid_amount, email, platform = 'instagram', image_url = '' } = req.body;
+    if (!['instagram', 'tiktok'].includes(platform)) return res.status(400).json({ error: 'Please choose Instagram or TikTok.' });
 
     if (!username || !bid_amount || bid_amount < 100 || !email || !/^\S+@\S+\.\S+$/.test(email)) {
         return res.status(400).json({ error: 'Please enter a valid email and a bid of at least €1.00.' });
@@ -140,14 +145,14 @@ router.post('/create-checkout-session', async (req, res) => {
         return res.status(400).json({ error: `Your bid must be at least €${(requiredBid / 100).toFixed(2)} to beat the current leader.` });
     }
 
-    const instaCheck = await validateInstagramUser(username);
-    if (!instaCheck.valid) {
-        return res.status(400).json({ error: instaCheck.message });
+    const accountCheck = platform === 'tiktok' ? await validateTikTokUser(username) : await validateInstagramUser(username);
+    if (!accountCheck.valid) {
+        return res.status(400).json({ error: accountCheck.message });
     }
 
-    const cleanUser = instaCheck.username;
-    const imageUrl = instaCheck.profileImageUrl || `https://unavatar.io/instagram/${cleanUser}`;
-    const profileUrl = `https://instagram.com/${cleanUser}`;
+    const cleanUser = accountCheck.username;
+    const safeImageUrl = /^https?:\/\//i.test(String(image_url).trim()) ? String(image_url).trim() : (accountCheck.profileImageUrl || `https://unavatar.io/${platform}/${cleanUser}`);
+    const profileUrl = platform === 'tiktok' ? `https://tiktok.com/@${cleanUser}` : `https://instagram.com/${cleanUser}`;
     const amountCents = parseInt(bid_amount);
 
     try {
@@ -168,13 +173,13 @@ router.post('/create-checkout-session', async (req, res) => {
             payment_intent_data: { receipt_email: email.trim() },
             success_url: `${process.env.BASE_URL}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.BASE_URL}/?canceled=true`,
-            metadata: { username: cleanUser, bid_amount: amountCents }
+            metadata: { username: cleanUser, bid_amount: amountCents, platform, image_url: safeImageUrl }
         });
 
         db.prepare(`
-            INSERT INTO bids (username, image_url, profile_url, bid_amount, stripe_session_id, status, email)
-            VALUES (?, ?, ?, ?, ?, 'pending', ?)
-        `).run(cleanUser, imageUrl, profileUrl, amountCents, session.id, email.trim());
+            INSERT INTO bids (username, image_url, profile_url, bid_amount, platform, stripe_session_id, status, email)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+        `).run(cleanUser, safeImageUrl, profileUrl, amountCents, platform, session.id, email.trim());
 
         res.json({ url: session.url });
     } catch (err) {

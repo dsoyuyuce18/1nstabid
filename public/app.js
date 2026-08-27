@@ -5,6 +5,8 @@ const closeModalBtn = document.getElementById('close-modal');
 const usernameInput = document.getElementById('username-input');
 const bidInput      = document.getElementById('bid-input');
 const emailInput    = document.getElementById('email-input');
+const platformInput = document.getElementById('platform-input');
+const imageInput    = document.getElementById('image-input');
 const usernameError = document.getElementById('username-error');
 const payBtn        = document.getElementById('pay-btn');
 const preview       = document.getElementById('preview');
@@ -77,6 +79,7 @@ function closeModal() {
     usernameInput.value = '';
     bidInput.value = '';
     emailInput.value = '';
+    imageInput.value = '';
     hideError();
     preview.classList.add('hidden');
 }
@@ -104,6 +107,8 @@ usernameInput.addEventListener('input', () => {
 // ── Pay button ─────────────────────────────────────────
 payBtn.addEventListener('click', async () => {
     const username   = usernameInput.value.replace('@', '').trim();
+    const platform   = platformInput.value;
+    const image_url  = imageInput.value.trim();
     const amountRaw  = parseFloat(bidInput.value);
     const email      = emailInput.value.trim();
 
@@ -126,7 +131,7 @@ payBtn.addEventListener('click', async () => {
         const res  = await fetch('/api/payment/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, bid_amount: amountCents, email })
+            body: JSON.stringify({ username, bid_amount: amountCents, email, platform, image_url })
         });
         const data = await res.json();
 
@@ -221,7 +226,7 @@ function renderLeaderboard(bids) {
                  src="${escapeHtml(bid.image_url)}" alt="@${safe}" loading="lazy"
                  onerror="this.onerror=null;this.src='${fallback}'">
             <div class="bid-info">
-                <div class="bid-username">@${safe}</div>
+                <div class="bid-username">@${safe} <small class="platform-label">${bid.platform === 'tiktok' ? 'TikTok' : 'Instagram'}</small></div>
                 <div class="bid-time">${timeAgo(bid.created_at)} · <span class="bid-clicks">${(bid.clicks || 0).toLocaleString()} clicks</span></div>
             </div>
             <div class="bid-amount">€${amount}</div>

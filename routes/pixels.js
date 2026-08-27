@@ -24,6 +24,7 @@ router.get('/', async (req, res) => {
                     username,
                     image_url,
                     profile_url,
+                    platform,
                     created_at,
                     clicks,
                     SUM(bid_amount) OVER (
@@ -43,6 +44,7 @@ router.get('/', async (req, res) => {
                 username,
                 image_url,
                 profile_url,
+                platform,
                 total_bid_amount AS bid_amount,
                 payment_count,
                 created_at,
@@ -52,7 +54,7 @@ router.get('/', async (req, res) => {
             ORDER BY bid_amount DESC, created_at DESC, id DESC
         `).all();
 
-        const fallbackBids = bids.filter((bid) => bid.image_url.includes('unavatar.io'));
+        const fallbackBids = bids.filter((bid) => bid.platform !== 'tiktok' && bid.image_url.includes('unavatar.io'));
         await Promise.all(fallbackBids.map(async (bid) => {
             const profile = await validateInstagramUser(bid.username);
             if (profile.valid && profile.profileImageUrl) {

@@ -571,6 +571,9 @@ body {
 .bid-explanation p { color: var(--muted); margin: 12px auto 16px; line-height: 1.5; font-size: 16px; }
 .explanation-cta { border: 0; border-radius: 24px; padding: 11px 20px; color: #fff; background: linear-gradient(135deg, #e1306c, #833ab4); font-weight: 700; cursor: pointer; }
 .bid-clicks { color: var(--muted); }
+.platform-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 5px; }
+.input-wrap select { flex:1; background:transparent; border:0; outline:0; color:var(--text); padding:12px 14px; font-size:15px; }
+.form-group label span { text-transform:none; letter-spacing:0; font-weight:500; }
 body.light {}
 body.dark { --bg:#0a0a12; --surface:#13131e; --surface2:#1a1a28; --border:#252538; --text:#eeeef5; --muted:#9292aa; }
 body:not(.dark) { --bg:#fffaf7; --surface:#ffffff; --surface2:#f5efeb; --border:#e4d9d2; --text:#262229; --muted:#746c68; }
