@@ -60,7 +60,7 @@ async function validateTikTokUser(username) {
         });
         const html = await res.text();
         const exists = res.ok && !/page not available|couldn't find this account|user not found/i.test(html) &&
-            (html.includes(`uniqueId\\\":\\\"${cleanUsername}`) || html.includes(`@${cleanUsername}`));
+            (html.includes(`"uniqueId":"${cleanUsername}"`) || html.includes(`@${cleanUsername}`));
         return exists
             ? { valid: true, username: cleanUsername }
             : { valid: false, message: `No TikTok account found for @${cleanUsername}. Please check the username and try again.` };
