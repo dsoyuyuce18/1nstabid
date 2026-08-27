@@ -50,6 +50,9 @@ if (process.env.SEED_DEMO_BIDS === 'true') {
     }
   });
   tx();
+} else {
+  // Remove temporary QA records once the seed flag is disabled.
+  db.prepare(`DELETE FROM bids WHERE username LIKE 'demo_bid_%'`).run();
 }
 
 db.exec(`
