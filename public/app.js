@@ -23,7 +23,7 @@ let showAllBids = false;
 
 // Keep the visitor's appearance preference across sessions.
 const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') document.body.classList.add('dark');
+if (savedTheme !== 'light') document.body.classList.add('dark');
 function syncThemeIcon() {
     const dark = document.body.classList.contains('dark');
     themeToggle.textContent = dark ? '☀' : '☾';

@@ -573,5 +573,8 @@ body {
 .bid-clicks { color: var(--muted); }
 body.light {}
 body.dark { --bg:#0a0a12; --surface:#13131e; --surface2:#1a1a28; --border:#252538; --text:#eeeef5; --muted:#9292aa; }
+body:not(.dark) { --bg:#fffaf7; --surface:#ffffff; --surface2:#f5efeb; --border:#e4d9d2; --text:#262229; --muted:#746c68; }
+body:not(.dark) .site-header { box-shadow: 0 1px 0 rgba(40,20,10,.06); }
+body:not(.dark) .bid-item.rank-1 { background:rgba(225,48,108,.07); }
 .show-more-bids { display:block; margin:18px auto 0; padding:10px 18px; border:1px solid var(--border); border-radius:22px; background:var(--surface2); color:var(--text); font-weight:700; cursor:pointer; }
 .show-more-bids:hover { border-color:var(--accent); color:var(--accent); }
