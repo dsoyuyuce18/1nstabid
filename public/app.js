@@ -293,7 +293,7 @@ function renderTodayRanking(bids) {
     if (!target) return;
     const cutoff = Date.now() - 24 * 60 * 60 * 1000;
     const today = bids.filter(b => parseDbDate(b.paid_at || b.created_at).getTime() >= cutoff).slice(0, 3);
-    target.innerHTML = today.length ? today.map((bid, i) => `<a class="today-card" href="${escapeHtml(bid.profile_url)}" target="_blank" rel="noopener"><span class="today-rank">#${i + 1}</span><img src="${escapeHtml(bid.image_url)}" alt=""><span class="today-info"><strong>@${escapeHtml(bid.username)}</strong><small>€${(bid.bid_amount / 100).toFixed(2)}</small></span></a>`).join('') : '<p class="empty-today">No bids in the last 24 hours.</p>';
+    target.innerHTML = today.length ? today.map((bid, i) => { const safe = escapeHtml(bid.username); const fallback = `https://ui-avatars.com/api/?name=${safe}&background=e1306c&color=fff&size=100`; return `<a class="today-card" href="${escapeHtml(bid.profile_url)}" target="_blank" rel="noopener"><span class="today-rank">#${i + 1}</span><img src="${escapeHtml(bid.image_url)}" alt="@${safe}" onerror="this.onerror=null;this.src='${fallback}'"><span class="today-info"><strong>@${safe}</strong><small>€${(bid.bid_amount / 100).toFixed(2)}</small></span></a>`; }).join('') : '<p class="empty-today">No bids in the last 24 hours.</p>';
 }
 
 function updateStats(bids) {
