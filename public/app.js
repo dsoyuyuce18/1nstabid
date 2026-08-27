@@ -15,6 +15,7 @@ const bannerArea    = document.getElementById('banner-area');
 const activityList  = document.getElementById('activity-list');
 const themeToggle   = document.getElementById('theme-toggle');
 const heroBid       = document.getElementById('hero-bid');
+const nextBidAmount  = document.getElementById('next-bid-amount');
 
 const INSTAGRAM_RE = /^[a-zA-Z0-9._]{1,30}$/;
 
@@ -160,7 +161,11 @@ async function updateMinBidHint() {
         const bids = await res.json();
         if (bids.length > 0) {
             const top = bids[0].bid_amount / 100;
-            minBidHint.textContent = `To outbid #1 you need more than €${top.toFixed(2)}`;
+            const increment = top >= 100 ? 5 : 1;
+            const next = top + increment;
+            minBidHint.textContent = `Suggested next bid: €${next.toFixed(2)}`;
+            bidInput.min = next.toFixed(2);
+            if (nextBidAmount) nextBidAmount.textContent = `€${next.toFixed(2)}`;
         }
     } catch { /* keep default text */ }
 }
@@ -174,9 +179,18 @@ async function loadLeaderboard() {
         updateStats(bids);
         renderTicker(bids);
         renderActivity(bids);
+        updateNextBidAmount(bids);
     } catch {
         leaderboard.innerHTML = '<div class="loading">Could not load rankings. Retrying…</div>';
     }
+}
+
+function updateNextBidAmount(bids) {
+    if (!nextBidAmount) return;
+    if (!bids.length) { nextBidAmount.textContent = '€1'; return; }
+    const top = bids[0].bid_amount / 100;
+    const increment = top >= 100 ? 5 : 1;
+    nextBidAmount.textContent = `€${(top + increment).toFixed(2)}`;
 }
 
 function renderLeaderboard(bids) {
