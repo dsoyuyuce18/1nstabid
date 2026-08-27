@@ -287,7 +287,8 @@ function updateStats(bids) {
     document.getElementById('total-bids').textContent   = bidCount;
     document.getElementById('top-bid').textContent      = bids.length ? `€${(bids[0].bid_amount / 100).toFixed(2)}` : '€0';
     const total = bids.reduce((s, b) => s + b.bid_amount, 0);
-    document.getElementById('total-raised').textContent = `€${(total / 100).toFixed(2)}`;
+    const totalRaised = document.getElementById('total-raised');
+    if (totalRaised) totalRaised.textContent = `€${(total / 100).toFixed(2)}`;
     const launchTotal = document.getElementById('launch-total');
     const launchHours = document.getElementById('launch-hours');
     if (launchTotal) launchTotal.textContent = `€${(total / 100).toFixed(2)}`;
