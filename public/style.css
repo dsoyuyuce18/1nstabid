@@ -132,6 +132,9 @@ body {
 .info-page h1 { margin-bottom: 12px; }
 .info-page p { color: var(--muted); line-height: 1.7; }
 .info-page a { color: var(--accent); }
+.info-page h2 { margin: 28px 0 8px; font-size: 18px; }
+.info-page ul { color: var(--muted); line-height: 1.7; padding-left: 22px; margin: 8px 0; }
+.info-page small { color: var(--muted); }
 
 .bid-btn {
     flex-shrink: 0;
