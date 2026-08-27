@@ -593,7 +593,7 @@ body:has(.info-page) .info-page > p:first-child a::before { content: '← '; col
 .launch-summary { text-align:center; margin:56px auto 10px; color:var(--muted); }
 .launch-summary p { font-size:22px; margin:8px 0; }
 .launch-summary p span { color:var(--accent); }
-.launch-total { display:inline-block; margin:10px 0; padding:18px 48px; border-radius:26px; background:var(--surface); color:var(--text); font-size:clamp(54px,10vw,108px); line-height:1; font-weight:800; letter-spacing:-4px; box-shadow:0 10px 35px rgba(0,0,0,.08); }
+.launch-total { display:inline-block; margin:10px 0; padding:14px 34px; border-radius:22px; background:var(--surface); color:var(--text); font-family:"Avenir Next", "Trebuchet MS", sans-serif; font-size:clamp(38px,6vw,72px); line-height:1; font-weight:800; letter-spacing:-2px; box-shadow:0 10px 35px rgba(0,0,0,.08); }
 @media (max-width:520px) { .launch-summary p { font-size:17px; } .launch-total { padding:16px 28px; letter-spacing:-2px; } }
 .platform-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 5px; }
 .input-wrap select { flex:1; background:transparent; border:0; outline:0; color:var(--text); padding:12px 14px; font-size:15px; }
