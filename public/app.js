@@ -280,15 +280,18 @@ function renderLeaderboard(bids) {
             visibleBids.forEach((_, i) => { const item = leaderboard.querySelectorAll('.bid-item')[i]; if (item) restBoard.appendChild(item); });
         }
     }
-    if (bids.length > BIDS_PER_PAGE || leaderboardPage > 0) {
-        const toggle = document.createElement('button');
-        toggle.className = 'show-more-bids';
-        toggle.type = 'button';
-        const nextPage = start + BIDS_PER_PAGE < bids.length;
-        toggle.textContent = nextPage ? `See more bids (${bids.length - start - BIDS_PER_PAGE}) ↓` : (leaderboardPage ? 'Previous page ↑' : '');
-        if (!toggle.textContent) return;
-        toggle.addEventListener('click', () => { leaderboardPage = nextPage ? leaderboardPage + 1 : leaderboardPage - 1; renderLeaderboard(bids); window.scrollTo({top: leaderboard.offsetTop - 20, behavior:'smooth'}); });
-        (restBoard || leaderboard).appendChild(toggle);
+    const pageCount = Math.ceil(bids.length / BIDS_PER_PAGE);
+    if (pageCount > 1) {
+        const pagination = document.createElement('div');
+        pagination.className = 'pagination';
+        for (let page = 0; page < pageCount; page += 1) {
+            const button = document.createElement('button');
+            button.type = 'button'; button.textContent = String(page + 1);
+            button.className = page === leaderboardPage ? 'active' : '';
+            button.addEventListener('click', () => { leaderboardPage = page; renderLeaderboard(bids); window.scrollTo({top: leaderboard.offsetTop - 20, behavior:'smooth'}); });
+            pagination.appendChild(button);
+        }
+        (restBoard || leaderboard).appendChild(pagination);
     }
     document.querySelectorAll('.leaderboard .bid-item').forEach((item) => {
         item.addEventListener('click', () => {
