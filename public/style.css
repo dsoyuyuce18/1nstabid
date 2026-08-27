@@ -601,6 +601,8 @@ body:has(.info-page) .info-page > p:first-child a::before { content: '← '; col
 .image-picker strong { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px; }
 .image-picker small { color:var(--muted); font-size:11px; margin-top:3px; }
 .image-picker-icon { width:32px; height:32px; display:grid; place-items:center; border-radius:9px; background:rgba(225,48,108,.12); color:var(--accent); font-size:22px; }
+.image-remove { margin-top:7px; border:0; background:none; color:var(--muted); font-size:11px; cursor:pointer; padding:2px 0; }
+.image-remove:hover { color:#ff4d6d; }
 body.light {}
 body.dark { --bg:#0a0a12; --surface:#13131e; --surface2:#1a1a28; --border:#252538; --text:#eeeef5; --muted:#9292aa; }
 body:not(.dark) { --bg:#fffaf7; --surface:#ffffff; --surface2:#f5efeb; --border:#e4d9d2; --text:#262229; --muted:#746c68; }
