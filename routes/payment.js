@@ -149,7 +149,7 @@ router.post('/create-checkout-session', async (req, res) => {
                     currency: 'eur',
                     product_data: {
                         name: `InstaBid Spot — @${cleanUser}`,
-                        description: `Bid $${(amountCents / 100).toFixed(2)} to own your ranked spot!`,
+                        description: `Bid €${(amountCents / 100).toFixed(2)} to own your ranked spot!`,
                     },
                     unit_amount: amountCents,
                 },

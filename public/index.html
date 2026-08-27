@@ -3,51 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1nstaBid — Own Your Spot</title>
+    <title>1nstaBid — Bid for the top spot</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="ticker-wrap">
-        <div class="ticker-track" id="ticker-track"></div>
-    </div>
-
     <header class="site-header">
-        <div class="header-brand">
-            <h1 class="logo">1nstaBid</h1>
-            <p class="tagline">Bid for your spot. <strong>Get seen.</strong></p>
+        <a class="header-brand" href="/" aria-label="1nstaBid home">
+            <span class="logo-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="logo">1nsta<span>Bid</span></span>
+        </a>
+        <nav class="header-nav" aria-label="Main navigation">
+            <a href="#leaderboard">Leaderboard</a>
+            <a href="#categories">Categories</a>
+            <a href="/about.html">About</a>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">☾</button>
+        </nav>
+        <div class="header-actions">
+            <button class="bid-btn" id="open-bid-modal">Place a bid</button>
         </div>
-        <button class="bid-btn" id="open-bid-modal">+ Place Your Bid</button>
     </header>
 
     <main>
-        <div class="stats-bar">
-            <div class="stat">
-                <span id="total-bids">—</span>
-                <small>Total Bids</small>
-            </div>
-            <div class="stat">
-                <span id="top-bid">—</span>
-                <small>Top Bid</small>
-            </div>
-            <div class="stat">
-                <span id="total-raised">—</span>
-                <small>Total Raised</small>
-            </div>
-            <div class="stat stat-online">
-                <span id="online-count">—</span>
-                <small><span class="online-dot"></span> Online Now</small>
-            </div>
-            <div class="stat">
-                <span id="visitor-count">—</span>
-                <small>Total Visitors</small>
-            </div>
+        <section class="hero">
+            <div class="online-pill"><span class="online-dot"></span><strong id="online-count">—</strong> online · <span id="visitor-count">—</span> visitors since launch</div>
+            <h1>Bid <em>€5</em> to win the first position.</h1>
+            <p>New spots start at €5. Your bid puts your profile on the board at the highest position it can reach.</p>
+            <button class="hero-cta" id="hero-bid">Place your bid <span>→</span></button>
+        </section>
+        <div class="stats-bar" aria-label="Leaderboard statistics">
+            <div class="stat"><span id="total-bids">—</span><small>Total bids</small></div>
+            <div class="stat"><span id="top-bid">—</span><small>Top bid</small></div>
+            <div class="stat"><span id="total-raised">—</span><small>Total raised</small></div>
         </div>
 
         <div id="banner-area"></div>
 
         <div class="payment-status hidden" id="payment-status" role="status"></div>
 
+        <div class="ticker-wrap"><div class="ticker-track" id="ticker-track"></div></div>
         <div class="activity-feed" id="activity-feed">
             <div class="activity-header">
                 <span class="live-badge">LIVE</span>
@@ -56,6 +51,7 @@
             <div class="activity-list" id="activity-list"></div>
         </div>
 
+        <div class="category-row" id="categories"><button class="category active">All bids</button><button class="category">Today</button><button class="category">All-time</button></div>
         <div class="leaderboard" id="leaderboard">
             <div class="loading">Loading rankings…</div>
         </div>

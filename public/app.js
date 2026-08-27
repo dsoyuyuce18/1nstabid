@@ -13,8 +13,26 @@ const previewName   = document.getElementById('preview-name');
 const minBidHint    = document.getElementById('min-bid-hint');
 const bannerArea    = document.getElementById('banner-area');
 const activityList  = document.getElementById('activity-list');
+const themeToggle   = document.getElementById('theme-toggle');
+const heroBid       = document.getElementById('hero-bid');
 
 const INSTAGRAM_RE = /^[a-zA-Z0-9._]{1,30}$/;
+
+// Keep the visitor's appearance preference across sessions.
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') document.body.classList.add('dark');
+function syncThemeIcon() {
+    const dark = document.body.classList.contains('dark');
+    themeToggle.textContent = dark ? '☀' : '☾';
+    themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+}
+syncThemeIcon();
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    syncThemeIcon();
+});
+heroBid?.addEventListener('click', openModal);
 
 // ── Session ID (for online tracking) ──────────────────
 let sessionId = localStorage.getItem('_sid');
@@ -179,18 +197,25 @@ function renderLeaderboard(bids) {
 
         return `
         <a class="bid-item${rank <= 3 ? ` rank-${rank}` : ''}"
-           href="${escapeHtml(bid.profile_url)}" target="_blank" rel="noopener noreferrer">
+           href="${escapeHtml(bid.profile_url)}" target="_blank" rel="noopener noreferrer"
+           data-username="${safe}">
             ${badge}
             <img class="avatar"
                  src="${escapeHtml(bid.image_url)}" alt="@${safe}" loading="lazy"
                  onerror="this.onerror=null;this.src='${fallback}'">
             <div class="bid-info">
                 <div class="bid-username">@${safe}</div>
-                <div class="bid-time">${timeAgo(bid.created_at)}</div>
+                <div class="bid-time">${timeAgo(bid.created_at)} · <span class="bid-clicks">${(bid.clicks || 0).toLocaleString()} clicks</span></div>
             </div>
             <div class="bid-amount">€${amount}</div>
         </a>`;
     }).join('');
+    leaderboard.querySelectorAll('.bid-item').forEach((item) => {
+        item.addEventListener('click', () => {
+            const username = item.dataset.username;
+            if (username) navigator.sendBeacon(`/api/bids/${encodeURIComponent(username)}/click`);
+        });
+    });
 }
 
 function updateStats(bids) {

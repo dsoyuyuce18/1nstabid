@@ -31,6 +31,9 @@ if (!bidColumns.some((column) => column.name === 'email')) {
 if (!bidColumns.some((column) => column.name === 'paid_at')) {
     db.exec(`ALTER TABLE bids ADD COLUMN paid_at DATETIME`);
 }
+if (!bidColumns.some((column) => column.name === 'clicks')) {
+    db.exec(`ALTER TABLE bids ADD COLUMN clicks INTEGER NOT NULL DEFAULT 0`);
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS stats (

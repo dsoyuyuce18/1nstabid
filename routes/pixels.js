@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
                     image_url,
                     profile_url,
                     created_at,
+                    clicks,
                     SUM(bid_amount) OVER (
                         PARTITION BY LOWER(username)
                     ) AS total_bid_amount,
@@ -44,7 +45,8 @@ router.get('/', async (req, res) => {
                 profile_url,
                 total_bid_amount AS bid_amount,
                 payment_count,
-                created_at
+                created_at,
+                clicks
             FROM ranked_bids
             WHERE user_bid_rank = 1
             ORDER BY bid_amount DESC, created_at DESC, id DESC
@@ -64,6 +66,16 @@ router.get('/', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to load bids.' });
     }
+});
+
+router.post('/:username/click', (req, res) => {
+    const username = String(req.params.username || '').replace('@', '').trim();
+    if (!/^[a-zA-Z0-9._]{1,30}$/.test(username)) return res.status(400).end();
+    db.prepare(`UPDATE bids SET clicks = clicks + 1 WHERE id = (
+        SELECT id FROM bids WHERE LOWER(username) = LOWER(?) AND status = 'paid'
+        ORDER BY created_at DESC, id DESC LIMIT 1
+    )`).run(username);
+    res.status(204).end();
 });
 
 module.exports = router;
