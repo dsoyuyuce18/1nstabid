@@ -38,6 +38,20 @@ if (!bidColumns.some((column) => column.name === 'platform')) {
     db.exec(`ALTER TABLE bids ADD COLUMN platform TEXT NOT NULL DEFAULT 'instagram'`);
 }
 
+// Temporary QA data: enable with SEED_DEMO_BIDS=true, then remove the variable
+// and delete usernames matching demo_bid_% when testing is complete.
+if (process.env.SEED_DEMO_BIDS === 'true') {
+  const seed = db.prepare(`INSERT INTO bids (username, image_url, profile_url, bid_amount, platform, status, created_at, paid_at) VALUES (?, ?, ?, ?, 'instagram', 'paid', datetime('now', ?), datetime('now', ?))`);
+  const exists = db.prepare(`SELECT 1 FROM bids WHERE username = ? LIMIT 1`);
+  const tx = db.transaction(() => {
+    for (let i = 1; i <= 30; i += 1) {
+      const username = `demo_bid_${String(i).padStart(2, '0')}`;
+      if (!exists.get(username)) seed.run(username, `https://ui-avatars.com/api/?name=${username}&background=e1306c&color=fff`, `https://instagram.com/${username}`, 100 + (i * 25), `-${i * 4} minutes`, `-${i * 4} minutes`);
+    }
+  });
+  tx();
+}
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS stats (
     key TEXT PRIMARY KEY,
