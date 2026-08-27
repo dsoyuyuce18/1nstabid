@@ -1,4 +1,8 @@
 const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const router = express.Router();
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -6,6 +10,21 @@ const { db, cleanupPending } = require('../db');
 const { validateInstagramUser, validateTikTokUser } = require('../services/instagramService');
 
 const INSTAGRAM_USERNAME_RE = /^[a-zA-Z0-9._]{1,30}$/;
+const uploadDir = path.join(__dirname, '..', 'uploads');
+fs.mkdirSync(uploadDir, { recursive: true });
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: uploadDir,
+        filename: (req, file, cb) => cb(null, `${crypto.randomUUID()}${path.extname(file.originalname).toLowerCase()}`)
+    }),
+    limits: { fileSize: 2 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => cb(null, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.mimetype))
+});
+
+router.post('/upload-image', upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Please choose a JPG, PNG, WebP, or GIF image.' });
+    res.json({ url: `/uploads/${req.file.filename}` });
+});
 
 function bidDetailsFromSession(session) {
     const username = String(session.metadata?.username || '').replace('@', '').trim();

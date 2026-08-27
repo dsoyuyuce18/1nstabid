@@ -108,7 +108,7 @@ usernameInput.addEventListener('input', () => {
 payBtn.addEventListener('click', async () => {
     const username   = usernameInput.value.replace('@', '').trim();
     const platform   = platformInput.value;
-    const image_url  = imageInput.value.trim();
+    let image_url = '';
     const amountRaw  = parseFloat(bidInput.value);
     const email      = emailInput.value.trim();
 
@@ -128,6 +128,16 @@ payBtn.addEventListener('click', async () => {
     setPayBtnLoading(true);
 
     try {
+        const imageFile = imageInput.files?.[0];
+        if (imageFile) {
+            if (imageFile.size > 2 * 1024 * 1024) throw new Error('Image must be 2 MB or smaller.');
+            const form = new FormData();
+            form.append('image', imageFile);
+            const upload = await fetch('/api/payment/upload-image', { method: 'POST', body: form });
+            const uploaded = await upload.json();
+            if (!upload.ok || !uploaded.url) throw new Error(uploaded.error || 'Could not upload image.');
+            image_url = uploaded.url;
+        }
         const res  = await fetch('/api/payment/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
