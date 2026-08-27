@@ -7,6 +7,7 @@ const bidInput      = document.getElementById('bid-input');
 const emailInput    = document.getElementById('email-input');
 const platformInput = document.getElementById('platform-input');
 const imageInput    = document.getElementById('image-input');
+const usernameLabel = document.getElementById('username-label');
 const platformChoices = document.querySelectorAll('.platform-choice');
 const usernameError = document.getElementById('username-error');
 const payBtn        = document.getElementById('pay-btn');
@@ -42,7 +43,15 @@ heroBid?.addEventListener('click', openModal);
 platformChoices.forEach((choice) => choice.addEventListener('click', () => {
     platformInput.value = choice.dataset.platform;
     platformChoices.forEach((item) => item.classList.toggle('active', item === choice));
+    syncPlatformText();
 }));
+function syncPlatformText() {
+    const name = platformInput.value === 'tiktok' ? 'TikTok' : 'Instagram';
+    usernameLabel.textContent = `${name} username`;
+    usernameInput.placeholder = name === 'TikTok' ? 'your_tiktok_username' : 'your_username';
+    usernameInput.maxLength = name === 'TikTok' ? 24 : 30;
+}
+syncPlatformText();
 imageInput.addEventListener('change', () => {
     const label = imageInput.closest('.image-picker');
     if (label && imageInput.files[0]) label.querySelector('strong').textContent = imageInput.files[0].name;
@@ -109,7 +118,7 @@ usernameInput.addEventListener('input', () => {
     }
     previewTimeout = setTimeout(() => {
         previewName.textContent = `@${val}`;
-        previewImg.src = `https://unavatar.io/instagram/${val}`;
+        previewImg.src = `https://unavatar.io/${platformInput.value}/${val}`;
         previewImg.onerror = () => preview.classList.add('hidden');
         previewImg.onload  = () => preview.classList.remove('hidden');
     }, 700);
@@ -123,9 +132,10 @@ payBtn.addEventListener('click', async () => {
     const amountRaw  = parseFloat(bidInput.value);
     const email      = emailInput.value.trim();
 
-    if (!username) { showError('Please enter your Instagram username.'); return; }
+    const platformName = platform === 'tiktok' ? 'TikTok' : 'Instagram';
+    if (!username) { showError(`Please enter your ${platformName} username.`); return; }
     if (!/^\S+@\S+\.\S+$/.test(email)) { showError('Please enter a valid email for your receipt.'); return; }
-    if (!INSTAGRAM_RE.test(username)) { showError('Invalid Instagram username format.'); return; }
+    if (!INSTAGRAM_RE.test(username)) { showError(`Invalid ${platformName} username format.`); return; }
     hideError();
 
     if (!amountRaw || amountRaw < 1) {
