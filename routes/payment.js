@@ -54,12 +54,13 @@ function recordPaidSession(session) {
         return null;
     }
 
+    const paidAt = session.created ? new Date(session.created * 1000).toISOString().slice(0, 19).replace('T', ' ') : null;
     db.prepare(`
         INSERT INTO bids (
             username, image_url, profile_url, bid_amount, platform,
             stripe_session_id, status, email, paid_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, 'paid', ?, CURRENT_TIMESTAMP)
+        VALUES (?, ?, ?, ?, ?, ?, 'paid', ?, COALESCE(?, CURRENT_TIMESTAMP))
         ON CONFLICT(stripe_session_id) DO UPDATE SET
             username = excluded.username,
             profile_url = excluded.profile_url,
@@ -67,7 +68,7 @@ function recordPaidSession(session) {
             bid_amount = excluded.bid_amount,
             status = 'paid',
             email = COALESCE(excluded.email, bids.email),
-            paid_at = COALESCE(bids.paid_at, excluded.paid_at)
+            paid_at = excluded.paid_at
     `).run(
         bid.username,
         bid.imageUrl,
@@ -75,7 +76,8 @@ function recordPaidSession(session) {
         bid.bidAmount,
         bid.platform,
         session.id,
-        bid.email
+        bid.email,
+        paidAt
     );
 
     return db.prepare(`
