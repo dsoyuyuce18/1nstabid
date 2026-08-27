@@ -162,7 +162,10 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 
     const cleanUser = accountCheck.username;
-    const safeImageUrl = /^https?:\/\//i.test(String(image_url).trim()) ? String(image_url).trim() : (accountCheck.profileImageUrl || `https://unavatar.io/${platform}/${cleanUser}`);
+    const submittedImage = String(image_url).trim();
+    const safeImageUrl = (/^https?:\/\//i.test(submittedImage) || /^\/uploads\/[a-zA-Z0-9._-]+$/.test(submittedImage))
+        ? submittedImage
+        : (accountCheck.profileImageUrl || `https://unavatar.io/${platform}/${cleanUser}`);
     const profileUrl = platform === 'tiktok' ? `https://tiktok.com/@${cleanUser}` : `https://instagram.com/${cleanUser}`;
     const amountCents = parseInt(bid_amount);
 
