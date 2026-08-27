@@ -297,7 +297,7 @@ function renderActivity(bids) {
     if (!activityList || !bids.length) return;
 
     const recent = [...bids]
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .sort((a, b) => parseDbDate(b.created_at) - parseDbDate(a.created_at))
         .slice(0, 6);
 
     const isFirstLoad = lastSeenTime === null;
@@ -309,7 +309,7 @@ function renderActivity(bids) {
     }
 
     // Prepend genuinely new items with slide-in animation
-    const newBids = recent.filter(b => new Date(b.created_at) > new Date(lastSeenTime));
+    const newBids = recent.filter(b => parseDbDate(b.created_at) > parseDbDate(lastSeenTime));
     lastSeenTime = recent[0]?.created_at ?? lastSeenTime;
     for (const b of newBids.reverse()) {
         const el = document.createElement('div');
@@ -338,7 +338,7 @@ function renderTicker(bids) {
     if (!bids.length || !track) return;
 
     // Sort by most recent for the ticker
-    const recent = [...bids].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const recent = [...bids].sort((a, b) => parseDbDate(b.created_at) - parseDbDate(a.created_at));
 
     const makeItems = () => recent.map(b => {
         const safe   = escapeHtml(b.username);
@@ -356,11 +356,18 @@ function renderTicker(bids) {
 }
 
 function timeAgo(dateStr) {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    const diff = Math.floor((Date.now() - parseDbDate(dateStr).getTime()) / 1000);
     if (diff < 60)    return 'just now';
     if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// SQLite CURRENT_TIMESTAMP is UTC but has no timezone suffix. Add one before
+// parsing so browsers do not interpret it as local time.
+function parseDbDate(value) {
+    const raw = String(value || '');
+    return new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(raw) ? raw : `${raw.replace(' ', 'T')}Z`);
 }
 
 function escapeHtml(str) {
