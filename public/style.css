@@ -619,3 +619,25 @@ body:not(.dark) .site-header { box-shadow: 0 1px 0 rgba(40,20,10,.06); }
 body:not(.dark) .bid-item.rank-1 { background:rgba(225,48,108,.07); }
 .show-more-bids { display:block; margin:18px auto 0; padding:10px 18px; border:1px solid var(--border); border-radius:22px; background:var(--surface2); color:var(--text); font-weight:700; cursor:pointer; }
 .show-more-bids:hover { border-color:var(--accent); color:var(--accent); }
+.main-board-section { max-width:1200px; margin:28px auto 0; }
+.main-board-section .leaderboard { max-width:none; margin:0; padding:0 24px; }
+.today-section { max-width:1200px; margin:34px auto 0; padding:0 24px; }
+.section-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.section-heading h2 { font-size:22px; letter-spacing:-.4px; }
+.section-heading span { color:var(--muted); font-size:14px; }
+.today-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.today-card { display:flex; align-items:center; gap:12px; min-width:0; padding:16px; border:1px solid rgba(225,48,108,.3); border-radius:18px; background:var(--surface); text-decoration:none; color:var(--text); }
+.today-card img { width:42px; height:42px; border-radius:12px; object-fit:cover; }
+.today-rank { color:var(--muted); font-weight:700; }
+.today-info { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.today-info strong { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.today-info small { color:var(--accent); font-weight:700; }
+.empty-today { color:var(--muted); }
+.activity-feed { max-width:1200px; margin:34px auto 0; padding:0 24px; }
+.activity-list { flex-direction:row; max-height:none; overflow:hidden; }
+.activity-item { flex:1; min-width:0; display:grid; grid-template-columns:auto 1fr; gap:3px 8px; padding:12px; }
+.activity-item .act-user { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.activity-item > span:nth-of-type(2) { grid-column:2; }
+.activity-item .act-amount { grid-column:2; margin:0; }
+.activity-item .act-time { grid-column:2; }
+@media (max-width:820px) { .today-grid { grid-template-columns:1fr; } .activity-list { flex-direction:column; } }

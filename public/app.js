@@ -25,6 +25,8 @@ const nextBidAmount  = document.getElementById('next-bid-amount');
 const INSTAGRAM_RE = /^[a-zA-Z0-9._]{1,30}$/;
 const INITIAL_BID_ROWS = 8;
 let showAllBids = false;
+let leaderboardPage = 0;
+const BIDS_PER_PAGE = 20;
 
 // Keep the visitor's appearance preference across sessions.
 const savedTheme = localStorage.getItem('theme');
@@ -217,6 +219,7 @@ async function loadLeaderboard() {
         const res  = await fetch('/api/bids');
         const bids = await res.json();
         renderLeaderboard(bids);
+        renderTodayRanking(bids);
         updateStats(bids);
         renderTicker(bids);
         renderActivity(bids);
@@ -240,9 +243,10 @@ function renderLeaderboard(bids) {
         return;
     }
 
-    const visibleBids = showAllBids ? bids : bids.slice(0, INITIAL_BID_ROWS);
+    const start = leaderboardPage * BIDS_PER_PAGE;
+    const visibleBids = bids.slice(start, start + BIDS_PER_PAGE);
     leaderboard.innerHTML = visibleBids.map((bid, i) => {
-        const rank   = i + 1;
+        const rank   = start + i + 1;
         const medal  = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
         const badge  = medal
             ? `<div class="rank-num">${medal}</div>`
@@ -266,12 +270,14 @@ function renderLeaderboard(bids) {
             <div class="bid-amount">€${amount}</div>
         </a>`;
     }).join('');
-    if (bids.length > INITIAL_BID_ROWS) {
+    if (bids.length > BIDS_PER_PAGE || leaderboardPage > 0) {
         const toggle = document.createElement('button');
         toggle.className = 'show-more-bids';
         toggle.type = 'button';
-        toggle.textContent = showAllBids ? 'Show fewer bids ↑' : `Show more bids (${bids.length - INITIAL_BID_ROWS}) ↓`;
-        toggle.addEventListener('click', () => { showAllBids = !showAllBids; renderLeaderboard(bids); });
+        const nextPage = start + BIDS_PER_PAGE < bids.length;
+        toggle.textContent = nextPage ? `See more bids (${bids.length - start - BIDS_PER_PAGE}) ↓` : (leaderboardPage ? 'Previous page ↑' : '');
+        if (!toggle.textContent) return;
+        toggle.addEventListener('click', () => { leaderboardPage = nextPage ? leaderboardPage + 1 : leaderboardPage - 1; renderLeaderboard(bids); window.scrollTo({top: leaderboard.offsetTop - 20, behavior:'smooth'}); });
         leaderboard.appendChild(toggle);
     }
     leaderboard.querySelectorAll('.bid-item').forEach((item) => {
@@ -280,6 +286,14 @@ function renderLeaderboard(bids) {
             if (username) navigator.sendBeacon(`/api/bids/${encodeURIComponent(username)}/click`);
         });
     });
+}
+
+function renderTodayRanking(bids) {
+    const target = document.getElementById('today-ranking');
+    if (!target) return;
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const today = bids.filter(b => parseDbDate(b.paid_at || b.created_at).getTime() >= cutoff).slice(0, 3);
+    target.innerHTML = today.length ? today.map((bid, i) => `<a class="today-card" href="${escapeHtml(bid.profile_url)}" target="_blank" rel="noopener"><span class="today-rank">#${i + 1}</span><img src="${escapeHtml(bid.image_url)}" alt=""><span class="today-info"><strong>@${escapeHtml(bid.username)}</strong><small>€${(bid.bid_amount / 100).toFixed(2)}</small></span></a>`).join('') : '<p class="empty-today">No bids in the last 24 hours.</p>';
 }
 
 function updateStats(bids) {
