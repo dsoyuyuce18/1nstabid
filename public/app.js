@@ -18,6 +18,8 @@ const heroBid       = document.getElementById('hero-bid');
 const nextBidAmount  = document.getElementById('next-bid-amount');
 
 const INSTAGRAM_RE = /^[a-zA-Z0-9._]{1,30}$/;
+const INITIAL_BID_ROWS = 8;
+let showAllBids = false;
 
 // Keep the visitor's appearance preference across sessions.
 const savedTheme = localStorage.getItem('theme');
@@ -199,7 +201,8 @@ function renderLeaderboard(bids) {
         return;
     }
 
-    leaderboard.innerHTML = bids.map((bid, i) => {
+    const visibleBids = showAllBids ? bids : bids.slice(0, INITIAL_BID_ROWS);
+    leaderboard.innerHTML = visibleBids.map((bid, i) => {
         const rank   = i + 1;
         const medal  = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
         const badge  = medal
@@ -224,6 +227,14 @@ function renderLeaderboard(bids) {
             <div class="bid-amount">€${amount}</div>
         </a>`;
     }).join('');
+    if (bids.length > INITIAL_BID_ROWS) {
+        const toggle = document.createElement('button');
+        toggle.className = 'show-more-bids';
+        toggle.type = 'button';
+        toggle.textContent = showAllBids ? 'Show fewer bids ↑' : `Show more bids (${bids.length - INITIAL_BID_ROWS}) ↓`;
+        toggle.addEventListener('click', () => { showAllBids = !showAllBids; renderLeaderboard(bids); });
+        leaderboard.appendChild(toggle);
+    }
     leaderboard.querySelectorAll('.bid-item').forEach((item) => {
         item.addEventListener('click', () => {
             const username = item.dataset.username;

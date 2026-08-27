@@ -573,3 +573,5 @@ body {
 .bid-clicks { color: var(--muted); }
 body.light {}
 body.dark { --bg:#0a0a12; --surface:#13131e; --surface2:#1a1a28; --border:#252538; --text:#eeeef5; --muted:#9292aa; }
+.show-more-bids { display:block; margin:18px auto 0; padding:10px 18px; border:1px solid var(--border); border-radius:22px; background:var(--surface2); color:var(--text); font-weight:700; cursor:pointer; }
+.show-more-bids:hover { border-color:var(--accent); color:var(--accent); }
